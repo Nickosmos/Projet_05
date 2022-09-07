@@ -3,12 +3,13 @@
  */
 
 // création de la fonction "produit"
- function Products () {
-    fetch ("http://localhost:3000/api/products")
-    .then (data => data.json())
-    .then (jsonListProducts => {
-        for (let product of jsonListProducts){
+function products () {
+    fetch("http://localhost:3000/api/products")
+    .then(data => data.json())
+    .then(jsonListProducts => {
+        for(let product of jsonListProducts){
 
+        //création de la fiche produit
         // création de la balise <a>
         let productLink = document.createElement("a");
         productLink.href =`./product.html?id=${product._id}`;
@@ -37,7 +38,8 @@
         productArticle.appendChild(productDescription);
         }
     })
+    .catch((error) => { console.log(`erreur: ${error}`)})
 }
 
 // appel de la fonction "produit"
- Products();
+products();

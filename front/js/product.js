@@ -3,53 +3,95 @@
  */
 
 // récupération de l'Id produit
- const ProductId = window.location.search;
- const urlSearchParams = new URLSearchParams(ProductId);
- const id = urlSearchParams.get("id");
+const ProductId = window.location.search;
+const urlSearchParams = new URLSearchParams(ProductId);
+const id = urlSearchParams.get("id");
 
 // création de la fonction "Article" 
- function Article() {
+function getArticle() {
+    if(id){
     fetch(`http://localhost:3000/api/products/${id}`)
     .then(res => res.json())
-    .then(product => {console.log(product)
+    .then(product => {
 
-        /**
+
+    //création de la fiche info produit
+          
     // création de la balise <img>
-    let productImage = document.createElement("img");
-    productImage.src = product.imageUrl;
-    productImage.alt = product.altTxt;
-    document.getElementsByClassName("item__img").appendChild(productImage);
-        */
-
+    let imageProduct = document.createElement("img");
+    imageProduct.src = product.imageUrl;
+    imageProduct.alt = product.altTxt;
+    let classImg = document.getElementsByClassName("item__img");
+    classImg[0].appendChild(imageProduct);
+    
     // ajout du nom du produit
-    let name = document.createTextNode(product.name);
-    let hNode = document.getElementById("title");
-    hNode.appendChild(name);
+    document.getElementById("title").innerHTML = product.name;
 
     // ajout du prix du produit
-    let price = document.createTextNode(product.price);
-    let sNode = document.getElementById("price");
-    sNode.appendChild(price);
-
+    document.getElementById("price").innerHTML = product.price;
+    
     // ajout de la description du produit
-    let description = document.createTextNode(product.description);
-    let dNode = document.getElementById("description");
-    dNode.appendChild(description);
+    document.getElementById("description").innerHTML = product.description;
 
-    // création d'une fonction pour le choix de la couleur
-    // voir cours pour récupérer les données d'un "array" et les ajouter dans la fonction
-    function Color() {
-        for( let colors of product){
-
-            let option = document.createElement("option");
-            option.value = product.colors;
-            option.textContent = product.colors;
-            document.getElementById("colors").appendChild(option);
-        }
-    }
-    Color ();
+    // appel de la fonction "couleur"
+    setColor(product.colors);
     })
-}
-        
+    .catch((error) => { console.log(`erreur: ${error}`)})
 
-Article();
+    } else { 
+        console.log("ID Introuvable");
+    }
+}
+   
+// création d'une fonction pour le choix de la couleur
+function setColor(colors) {
+    for( let color of colors){
+
+        // ajout des options de couleurs
+        let option = document.createElement("option");
+        option.value = color;
+        option.textContent = color;
+        document.getElementById("colors").appendChild(option);
+    }
+}
+
+// appel de la fonction "Article"
+getArticle();
+
+
+
+function saveCart(cart) {
+    localStorage.setItem("cartProducts", JSON.stringify(cart));
+}
+
+function getCart() {
+    let cart = localStorage.getItem("cartProducts");
+    if(cart == null) {
+        return [];
+    }else {
+        return JSON.parse(cart);
+    }
+}
+
+function addToCart() {
+    const selectedColor = document.getElementById("colors").value;
+    const selectedQuantity = document.getElementById("quantity").value;
+    let cart = getCart();
+    let sameProduct = cart.find(p => (p.id == id && p.color == selectedColor));
+    if(sameProduct != undefined) {
+        sameProduct.quantity = parseInt(sameProduct.quantity) + parseInt(selectedQuantity);
+    }else {
+        let product = {
+            id: id,
+            color: selectedColor,
+            quantity: selectedQuantity
+        }
+        cart.push(product);
+    }
+    saveCart(cart);
+}
+
+const buttonAddToCart = document.getElementById("addToCart");
+buttonAddToCart.addEventListener("click", () => {
+    addToCart();
+})

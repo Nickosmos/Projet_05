@@ -2,7 +2,9 @@
  * Fichier de gestion de l'affichage dynamique de la page d'acceuil
  */
 
-// création de la fonction "produit"
+// +++++++++++++ Affichage des produits +++++++++++++
+
+// création d'une fonction pour récupérer et afficher les produits
 function products () {
     fetch("http://localhost:3000/api/products")
     .then(data => data.json())
@@ -41,5 +43,5 @@ function products () {
     .catch((error) => { console.log(`erreur: ${error}`)})
 }
 
-// appel de la fonction "produit"
+// appel de la fonction
 products();

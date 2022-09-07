@@ -2,8 +2,9 @@
  * Fichier de gestion de l'affichage dynamique de la page panier
  */
 
+// ++++++++++++++++++ Affichage du panier ++++++++++++++++++
 
-// création de la fonction de récupération du panier sur "localeStorage"
+// Création d'une fonction pour récupérer les données du panier stocké dans le LocalStorage
 function getCart() {
     let cartProducts = localStorage.getItem("cartProducts");
     if(cartProducts == null) {
@@ -14,7 +15,7 @@ function getCart() {
 }
 let cart = getCart();
 
-// création de la fonction d'affichage des articles dans le panier
+// création d'une fonction pour gérer l'affichage des articles dans le panier
 function displayItem(itemId, itemColor, itemImageUrl, itemAltTxt, itemName, itemPrice, itemQuantity) {
     
     // création de la balise article
@@ -23,8 +24,7 @@ function displayItem(itemId, itemColor, itemImageUrl, itemAltTxt, itemName, item
     articleLink.setAttribute("data-id",itemId);
     articleLink.setAttribute("data-color", itemColor);
     document.getElementById("cart__items").appendChild(articleLink);
-            
-    
+              
     // création de la balise div "image"
     let divImg = document.createElement("div");
     divImg.className = "cart__item__img";
@@ -34,7 +34,6 @@ function displayItem(itemId, itemColor, itemImageUrl, itemAltTxt, itemName, item
     articleImg.src = itemImageUrl;
     articleImg.alt = itemAltTxt;
     divImg.appendChild(articleImg);
-    
     
     // création de la balise div "content"
     let divContent = document.createElement("div");
@@ -103,12 +102,11 @@ function displayItem(itemId, itemColor, itemImageUrl, itemAltTxt, itemName, item
     articleDelete.addEventListener("click", () => {
         cart = cart.filter(p => (p.id != itemId || p.color != itemColor));
         localStorage.setItem("cartProducts", JSON.stringify(cart));
-        
     });
     divDelete.appendChild(articleDelete);
 }
 
-// création de la fonction de calcul de la quantité total d'articles
+// création d'une fonction de calcul de la quantité total d'articles
 function totalItemsQuantity () {
     let totalQuantity = 0;
     for(let item of cart) {
@@ -119,7 +117,7 @@ function totalItemsQuantity () {
 
 
 
-// création de la fonction d'affichage du panier
+// création d'une fonction pour gérer la récupération et l'affichage du panier
 function displayCart(){
     fetch("http://localhost:3000/api/products")
     .then(res => res.json())
@@ -152,16 +150,7 @@ function displayCart(){
 displayCart();
 
 
-/**function removeItem(item) {
-    let cart = getCart();
-    cart = cart.filter(p => p.id != item.id);
-    localStorage.setItem("cartProducts", JSON.stringify(cart));
-}*/
-
-
-
-
-// Création de la fiche de renseignement pour la commande
+// ++++++++++++++++++ Gestion de la fiche de renseignement pour la commande ++++++++++++++++++
 
 // Déclaration des différents champs du formulaire
 let contact = {
@@ -176,10 +165,8 @@ let contact = {
 let mailRegExp = new RegExp('^[a-zA-Z0-9.-_]+[@]{1}[a-zA-Z0-9.-_]+[.]{1}[a-z]{2,10}$');
 let letterRegExp = new RegExp("^[a-zA-Zàâäéèêëïîôöùûüç ,.'-]+$");
 let addressRegExp = new RegExp("^[0-9]{1,3}(?:(?:[,. ]){1}[-a-zA-Zàâäéèêëïîôöùûüç]+)+");
-  
- 
-// Création des conditions avec regex pour chaque input
 
+// Gestion des conditions avec "regex" pour chaque input du formulaire
 // validation "firstName"
 let firstName = document.getElementById("firstName");
 let firstNameErrorMsg = document.getElementById("firstNameErrorMsg");
@@ -287,11 +274,10 @@ function validEmail(email) {
 }
 
 
-// Création fonction "commander"
+// Création d'une fonction pour commander les articles du panier
 function order() {
     let products = [];
-    orderButton = document.getElementById("order").addEventListener("click", (e) => {
-        e.preventDefault();
+    orderButton = document.getElementById("order").addEventListener("click", () => {
         if(letterRegExp.test(firstName.value) == false || letterRegExp.test(lastName.value) == false || addressRegExp.test(address.value) == false || letterRegExp.test(city.value) == false || mailRegExp.test(email.value) == false) {
                 window.alert("certains champs du formulaire ne sont pas valide");
         }else if (firstName.value == "" || lastName.value == "" || address.value == "" || city.value == "" || email.value == "") {
@@ -299,7 +285,7 @@ function order() {
         }else {
         localStorage.setItem("contact", JSON.stringify(contact));
     
-        // Vérification si le panier contient des articles
+        // Vérification que le panier n'est pas vide
         if(cart && cart.length) {
             for (let cartItems of cart) {
             products.push(cartItems.id)
@@ -326,7 +312,7 @@ function order() {
             })
    
             }else {
-            alert("Votre panier est vide");
+            alert("Le panier est vide");
             }
         }
     })

@@ -102,7 +102,8 @@ function displayItem(itemId, itemColor, itemImageUrl, itemAltTxt, itemName, item
     articleDelete.addEventListener("click", () => {
         cart = cart.filter(p => (p.id != itemId || p.color != itemColor));
         localStorage.setItem("cartProducts", JSON.stringify(cart));
-    });
+    refreshcart();
+    })
     divDelete.appendChild(articleDelete);
 }
 
@@ -115,6 +116,12 @@ function totalItemsQuantity () {
     document.getElementById("totalQuantity").innerHTML = totalQuantity;
 }
 
+// création de la fonction pour réafficher le panier
+function refreshcart() {
+    let sectionToClear = document.getElementById("cart__items");
+    sectionToClear.innerHTML = "";
+    displayCart();
+}
 
 
 // création d'une fonction pour gérer la récupération et l'affichage du panier

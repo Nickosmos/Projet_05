@@ -79,14 +79,18 @@ function displayItem(itemId, itemColor, itemImageUrl, itemAltTxt, itemName, item
     inputQuantity.max = "100";
     inputQuantity.value = itemQuantity;
     inputQuantity.addEventListener("change", () => {
-        let sameProduct = cart.find(p => (p.id == itemId && p.color == itemColor));
-        sameProduct.quantity = parseInt(inputQuantity.value);
-        localStorage.setItem("cartProducts", JSON.stringify(cart));
-        totalItemsQuantity();
-        let cartTotalPrice = document.getElementById('totalPrice');        
-        newTotalPrice = cartTotalPrice.textContent - (itemQuantity * itemPrice) + (inputQuantity.value * itemPrice);
-        itemQuantity = inputQuantity.value;
-        cartTotalPrice.innerHTML = newTotalPrice;
+        if(inputQuantity.value < 1 || inputQuantity.value > 100) {
+            alert("La quantité doit être comprise entre 1 et 100");
+        }else {
+            let sameProduct = cart.find(p => (p.id == itemId && p.color == itemColor));
+            sameProduct.quantity = parseInt(inputQuantity.value);
+            localStorage.setItem("cartProducts", JSON.stringify(cart));
+            totalItemsQuantity();
+            let cartTotalPrice = document.getElementById('totalPrice');        
+            newTotalPrice = cartTotalPrice.textContent - (itemQuantity * itemPrice) + (inputQuantity.value * itemPrice);
+            itemQuantity = inputQuantity.value;
+            cartTotalPrice.innerHTML = newTotalPrice;
+        }
     });
     divQuantity.appendChild(inputQuantity);
     
@@ -231,7 +235,7 @@ function validAddress(address) {
         addressErrorMsg.textContent = "";
         valid = true;
     }else {
-        addressErrorMsg.textContent = "veuillez entrer une adresse valide";
+        addressErrorMsg.textContent = "veuillez entrer une adresse valide (ex: 124 boulevard de la villette)";
         valid = false;
     }
     return valid;
@@ -274,7 +278,7 @@ function validEmail(email) {
         emailErrorMsg.textContent = "";
         valid = true;
     }else {
-        emailErrorMsg.textContent = "veuillez entrer une adresse valide, exemple toto@monmail.fr";
+        emailErrorMsg.textContent = "veuillez entrer une adresse valide, (ex: toto@monmail.fr)";
         valid = false;
     }
     return valid;
@@ -284,44 +288,48 @@ function validEmail(email) {
 // Création d'une fonction pour commander les articles du panier
 function order() {
     let products = [];
-    orderButton = document.getElementById("order").addEventListener("click", () => {
+    orderButton = document.getElementById("order").addEventListener("click", (e) => {
+        e.preventDefault();
         if(letterRegExp.test(firstName.value) == false || letterRegExp.test(lastName.value) == false || addressRegExp.test(address.value) == false || letterRegExp.test(city.value) == false || mailRegExp.test(email.value) == false) {
-                window.alert("certains champs du formulaire ne sont pas valide");
-        }else if (firstName.value == "" || lastName.value == "" || address.value == "" || city.value == "" || email.value == "") {
-                window.alert("veuillez renseigner tout les champs du formulaire");
+            alert("certains champs du formulaire ne sont pas valide");
         }else {
-        localStorage.setItem("contact", JSON.stringify(contact));
-    
-        // Vérification que le panier n'est pas vide
-        if(cart && cart.length) {
-            for (let cartItems of cart) {
-            products.push(cartItems.id)
-            }
-    
-            let order = {
-            contact: contact,
-            products: products,
-            }
-    
-            //fetch méthode Post pour envoyer les informations du formulaire
-            fetch("http://localhost:3000/api/products/order", {
-            method: "POST",
-            body: JSON.stringify(order),
-            headers: {
-                "Accept": "application/json",
-                'Content-Type': 'application/json'
-                }
-            })
-            .then((res) => res.json())
-            .then((data) => {
-                let orderId = data.orderId;
-                window.location.assign("confirmation.html?id=" + orderId)
-            })
-   
+            if(firstName.value == "" || lastName.value == "" || address.value == "" || city.value == "" || email.value == "") {
+                alert("veuillez renseigner tout les champs du formulaire");
             }else {
-            alert("Le panier est vide");
+                localStorage.setItem("contact", JSON.stringify(contact));
+        
+                // Vérification que le panier n'est pas vide
+                if(cart && cart.length) {
+                    for (let cartItems of cart) {
+                    products.push(cartItems.id)
+                    };
+            
+                    let order = {
+                    contact: contact,
+                    products: products,
+                    };
+            
+                    //fetch méthode Post pour envoyer les informations du formulaire
+                    fetch("http://localhost:3000/api/products/order", {
+                    method: "POST",
+                    body: JSON.stringify(order),
+                    headers: {
+                        "Accept": "application/json",
+                        'Content-Type': 'application/json'
+                        }
+                    })
+                    .then((res) => res.json())
+                    .then((data) => {
+                        let orderId = data.orderId;
+                        window.location.assign("confirmation.html?id=" + orderId)
+                    })
+                    .catch((error) => { console.log(`erreur: ${error}`)})
+                }else {
+                    alert("Le panier est vide");
+                }
             }
         }
-    })
+    });
 }
+
 order();
